@@ -25,7 +25,6 @@ from apps.schedule.models.event import Event
 from apps.schedule.models.specialreservation import SpecialReservation
 from apps.schedule.models.term import Term
 from apps.schedule.utils import EventAdapter, get_week_range_by_date
-from apps.notifications.custom_signals import event_decision
 
 from .forms import DoorChartForm, TableReportForm
 from .fullcalendar import FullCalendarView
@@ -334,7 +333,7 @@ class EventsTermsAjaxView(FullCalendarView):
 
     def get_queryset(self):
         queryset = super(EventsTermsAjaxView, self).get_queryset()
-        queryset = queryset.filter(event__type='2', event__visible=True)
+        queryset = queryset.filter(event__type='2', event__status='1', event__visible=True)
         return queryset
 
 
