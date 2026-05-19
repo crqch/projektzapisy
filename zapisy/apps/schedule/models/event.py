@@ -138,7 +138,7 @@ class Event(models.Model):
                 event_conflicts.add(conflict.event)
         return list(event_conflicts)
 
-    def _user_can_see_or_404(self, user):
+    def _is_visible_to(self, user):
         """Private method. Return True if user can see event, otherwise False.
 
         @param user: auth.User
@@ -166,7 +166,7 @@ class Event(models.Model):
         except ObjectDoesNotExist:
             raise Http404
 
-        if event._user_can_see_or_404(user):
+        if event._is_visible_to(user):
             return event
         else:
             raise Http404

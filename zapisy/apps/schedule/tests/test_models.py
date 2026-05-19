@@ -11,7 +11,10 @@ import apps.enrollment.courses.tests.factories as enrollment_factories
 from apps.common import days_of_week
 from apps.enrollment.courses.models.classroom import Classroom
 from apps.enrollment.courses.models.semester import Semester
-from apps.enrollment.courses.tests.objectmothers import ClassroomObjectMother, SemesterObjectMother
+from apps.enrollment.courses.tests.objectmothers import (
+    ClassroomObjectMother,
+    SemesterObjectMother,
+)
 from apps.enrollment.records.models import Record, RecordStatus
 from apps.schedule import feeds
 from apps.schedule.models.event import Event
@@ -413,11 +416,11 @@ class EventTestCase(TestCase):
     def test_normal_user_cant_see_invisible_event(self):
         user = UserFactory()
         event = factories.EventInvisibleFactory.build()
-        self.assertFalse(event._user_can_see_or_404(user))
+        self.assertFalse(event._is_visible_to(user))
 
     def test_author_can_see_own_invisible_event(self):
         event = factories.EventInvisibleFactory.build()
-        self.assertTrue(event._user_can_see_or_404(event.author))
+        self.assertTrue(event._is_visible_to(event.author))
 
     def test_user_with_manage_perm_can_see_invisible_event(self):
         user = UserFactory()
@@ -425,31 +428,31 @@ class EventTestCase(TestCase):
         permission = Permission.objects.get(codename='manage_events')
         user.user_permissions.add(permission)
         event = factories.EventFactory(visible=False)
-        self.assertTrue(event._user_can_see_or_404(user))
+        self.assertTrue(event._is_visible_to(user))
 
     def test_student_cant_see_pending_event(self):
         user = UserFactory()
         user.full_clean()
         event = factories.PendingEventFactory.build()
-        self.assertFalse(event._user_can_see_or_404(user))
+        self.assertFalse(event._is_visible_to(user))
 
     def test_user_cant_see_rejected_event(self):
         user = UserFactory()
         user.full_clean()
         event = factories.RejectedEventFactory.build()
-        self.assertFalse(event._user_can_see_or_404(user))
+        self.assertFalse(event._is_visible_to(user))
 
     def test_user_cant_see_type_class_event(self):
         user = UserFactory()
         user.full_clean()
         event = factories.EventFactory.build(type=Event.TYPE_CLASS)
-        self.assertFalse(event._user_can_see_or_404(user))
+        self.assertFalse(event._is_visible_to(user))
 
     def test_user_cant_see_type_other_event(self):
         user = UserFactory()
         user.full_clean()
         event = factories.EventFactory.build(type=Event.TYPE_OTHER)
-        self.assertFalse(event._user_can_see_or_404(user))
+        self.assertFalse(event._is_visible_to(user))
 
     def test_get_event_or_404_raises_error404_if_event_doesnt_exist(self):
         user = UserFactory.build()
